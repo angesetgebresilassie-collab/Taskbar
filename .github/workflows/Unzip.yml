@@ -1,33 +1,20 @@
-name: Unzip to Root
+name: Unzip Farmerbb Taskbar to Root
 
 on: [push, workflow_dispatch]
 
 jobs:
-  unzip:
+  download-and-extract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout your repository
+        uses: actions/checkout@v4
 
-      - name: Extract directly to root
+      - name: Fetch and extract farmerbb/Taskbar to root
         run: |
-          python3 -c "
-          import zipfile, os, shutil
-          with zipfile.ZipFile('Taskbar-master.zip', 'r') as z:
-              z.extractall('_temp')
-          
-          # Auto-detect if files are inside a nested folder or at the zip root
-          contents = os.listdir('_temp')
-          src = os.path.join('_temp', contents[0]) if len(contents) == 1 and os.path.isdir(os.path.join('_temp', contents[0])) else '_temp'
-          
-          # Move all items (including hidden files) to root
-          for item in os.listdir(src):
-              target = os.path.join('.', item)
-              if os.path.exists(target):
-                  if os.path.isdir(target): shutil.rmtree(target)
-                  else: os.remove(target)
-              shutil.move(os.path.join(src, item), target)
-          
-          shutil.rmtree('_temp', ignore_errors=True)
-          "
-          rm -f Taskbar-master.zip
-          
+          curl -L https://github.com/farmerbb/Taskbar/archive/refs/heads/master.zip -o Taskbar-master.zip
+          bsdtar -xvf Taskbar-master.zip --strip-components=1 -C .
+          rm Taskbar-master.zip
+
+      - name: Verify files at root
+        run: ls -la
+        
