@@ -19,7 +19,7 @@ jobs:
           curl -L https://github.com/farmerbb/Taskbar/archive/refs/heads/master.zip -o Taskbar-master.zip
           unzip -q Taskbar-master.zip
           
-          # Delete incoming .github folder completely to prevent push errors
+          # Delete incoming .github folder completely to prevent push permission errors
           rm -rf Taskbar-master/.github
           
           # Copy source files to root
