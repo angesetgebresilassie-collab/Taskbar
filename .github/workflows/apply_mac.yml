@@ -16,11 +16,6 @@ jobs:
 
       - name: Create, Execute, and Clean Up Script
         run: |
-          # 1. Write script directly on runner
-          cat << 'EOF' > apply_mac_freeform.sh
-          #!/usr/bin/env bash
-          set -e
-
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/layout
           mkdir -p app/src/main/java/com/farmerbb/taskbar/util
@@ -115,6 +110,7 @@ jobs:
           import android.content.Context;
           import android.content.Intent;
           import android.graphics.Rect;
+          import android.os.Build;
           import java.util.HashMap;
           import java.util.Map;
 
@@ -135,35 +131,34 @@ jobs:
                   String pkg = intent.getComponent() != null ? intent.getComponent().getPackageName() : null;
                   Rect bounds = (pkg != null && savedBoundsMap.containsKey(pkg)) ? savedBoundsMap.get(pkg) : defaultBounds;
 
-                  ActivityOptions options = ActivityOptions.makeBasic();
-                  if (bounds != null) {
-                      options.setLaunchBounds(bounds);
-                  }
+                  intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
 
-                  intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK 
-                                | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT 
-                                | Intent.FLAG_ACTIVITY_RESIZABLE_FOR_ALL_PROFILES);
-
-                  try {
-                      context.startActivity(intent, options.toBundle());
-                  } catch (Exception e) {
-                      e.printStackTrace();
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                      ActivityOptions options = ActivityOptions.makeBasic();
+                      if (bounds != null) {
+                          options.setLaunchBounds(bounds);
+                      }
+                      try {
+                          context.startActivity(intent, options.toBundle());
+                      } catch (Exception e) {
+                          e.printStackTrace();
+                      }
+                  } else {
+                      try {
+                          context.startActivity(intent);
+                      } catch (Exception e) {
+                          e.printStackTrace();
+                      }
                   }
               }
           }
           EOT
-          EOF
-
-          # 2. Grant execution permissions and run immediately
-          chmod +x apply_mac_freeform.sh
-          ./apply_mac_freeform.sh
-          rm apply_mac_freeform.sh
 
       - name: Commit and Push Code to Repository
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Apply macOS UI components and restore state manager" || echo "No changes to commit"
+          git commit -m "Fix Java compilation errors and apply macOS freeform manager" || echo "No changes to commit"
           git push
           
