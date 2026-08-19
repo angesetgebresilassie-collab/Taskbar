@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  workflows: write
 
 jobs:
   download-and-commit:
@@ -18,6 +19,10 @@ jobs:
         run: |
           curl -L https://github.com/farmerbb/Taskbar/archive/refs/heads/master.zip -o Taskbar-master.zip
           unzip -q Taskbar-master.zip
+          
+          # Delete incoming workflow files so they don't overwrite yours or trigger security errors
+          rm -rf Taskbar-master/.github/workflows
+          
           cp -rf Taskbar-master/. .
           rm -rf Taskbar-master Taskbar-master.zip
 
