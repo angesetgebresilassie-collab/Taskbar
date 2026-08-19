@@ -1,25 +1,33 @@
-name: Unzip File to Root
+name: Unzip to Root
 
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 
 jobs:
-  unzip-job:
+  unzip:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Extract and flatten Taskbar-master.zip to Root
+      - name: Extract directly to root
         run: |
-          unzip -o Taskbar-master.zip
-          shopt -s dotglob
-          mv Taskbar-master/* .
-          rm -rf Taskbar-master Taskbar-master.zip
-
-      - name: Verify extracted files in Root
-        run: ls -la
-        
+          python3 -c "
+          import zipfile, os, shutil
+          with zipfile.ZipFile('Taskbar-master.zip', 'r') as z:
+              z.extractall('_temp')
+          
+          # Auto-detect if files are inside a nested folder or at the zip root
+          contents = os.listdir('_temp')
+          src = os.path.join('_temp', contents[0]) if len(contents) == 1 and os.path.isdir(os.path.join('_temp', contents[0])) else '_temp'
+          
+          # Move all items (including hidden files) to root
+          for item in os.listdir(src):
+              target = os.path.join('.', item)
+              if os.path.exists(target):
+                  if os.path.isdir(target): shutil.rmtree(target)
+                  else: os.remove(target)
+              shutil.move(os.path.join(src, item), target)
+          
+          shutil.rmtree('_temp', ignore_errors=True)
+          "
+          rm -f Taskbar-master.zip
+          
