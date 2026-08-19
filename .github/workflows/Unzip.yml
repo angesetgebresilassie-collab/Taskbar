@@ -1,18 +1,25 @@
-name: Extract Local Taskbar-master.zip
+name: Fetch and Unzip Taskbar to Root
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
-  extract-local-zip:
+  download-and-extract:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout your repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Unpack Taskbar-master.zip to root
+      - name: Fetch and extract farmerbb/Taskbar to root
         run: |
-          bsdtar -xvf Taskbar-master.zip --strip-components=1 -C .
-          rm Taskbar-master.zip
+          curl -L https://github.com/farmerbb/Taskbar/archive/refs/heads/master.zip -o Taskbar-master.zip
+          unzip -q Taskbar-master.zip
+          shopt -s dotglob
+          mv Taskbar-master/* .
+          rm -rf Taskbar-master Taskbar-master.zip
 
       - name: Verify files at root
         run: ls -la
