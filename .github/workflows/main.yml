@@ -5,7 +5,7 @@ on:
 
 permissions:
   contents: write
-  workflows: write
+  workflow: write
 
 jobs:
   download-and-commit:
