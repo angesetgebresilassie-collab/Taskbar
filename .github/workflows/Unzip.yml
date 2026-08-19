@@ -13,9 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract Taskbar-master.zip to Root
+      - name: Extract and flatten Taskbar-master.zip to Root
         run: |
-          unzip -o Taskbar-master.zip -d .
+          unzip -o Taskbar-master.zip
+          shopt -s dotglob
+          mv Taskbar-master/* .
+          rm -rf Taskbar-master Taskbar-master.zip
 
       - name: Verify extracted files in Root
         run: ls -la
