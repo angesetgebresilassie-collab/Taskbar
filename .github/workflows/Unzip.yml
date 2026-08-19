@@ -17,8 +17,7 @@ jobs:
         run: |
           curl -L https://github.com/farmerbb/Taskbar/archive/refs/heads/master.zip -o Taskbar-master.zip
           unzip -q Taskbar-master.zip
-          shopt -s dotglob
-          mv Taskbar-master/* .
+          cp -rf Taskbar-master/. .
           rm -rf Taskbar-master Taskbar-master.zip
 
       - name: Verify files at root
