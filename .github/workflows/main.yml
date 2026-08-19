@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: write
-  workflow: write
 
 jobs:
   download-and-commit:
@@ -20,9 +19,10 @@ jobs:
           curl -L https://github.com/farmerbb/Taskbar/archive/refs/heads/master.zip -o Taskbar-master.zip
           unzip -q Taskbar-master.zip
           
-          # Delete incoming workflow files so they don't overwrite yours or trigger security errors
-          rm -rf Taskbar-master/.github/workflows
+          # Delete incoming .github folder completely to prevent push errors
+          rm -rf Taskbar-master/.github
           
+          # Copy source files to root
           cp -rf Taskbar-master/. .
           rm -rf Taskbar-master Taskbar-master.zip
 
@@ -31,6 +31,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Add Taskbar source files to root" || echo "No changes to commit"
+          git commit -m "Add Taskbar source code to root" || echo "No changes to commit"
           git push
           
