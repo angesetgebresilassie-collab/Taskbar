@@ -1,12 +1,13 @@
-name: Fetch and Unzip Taskbar to Root
+name: Fetch and Commit Taskbar to Root
 
 on:
-  push:
-    branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  download-and-extract:
+  download-and-commit:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +21,11 @@ jobs:
           cp -rf Taskbar-master/. .
           rm -rf Taskbar-master Taskbar-master.zip
 
-      - name: Verify files at root
-        run: ls -la
-        
+      - name: Commit and push files to repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Add Taskbar source files to root" || echo "No changes to commit"
+          git push
+          
