@@ -1,0 +1,22 @@
+name: Unzip File to Root
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  unzip-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Taskbar-master.zip to Root
+        run: |
+          unzip -o Taskbar-master.zip -d .
+
+      - name: Verify extracted files in Root
+        run: ls -la
+        
